@@ -42,6 +42,13 @@ export default function Home() {
     })
   }, [filteredTasks])
 
+  /* Filter allTasks by the non-completed state. */
+  const activeTasks = useMemo<Task[] | null>(() => {
+    if (!allTasks) return null
+
+    return allTasks.filter(task => !task.isDone)
+  }, [allTasks])
+
   /* Display at most one dismissable error message. */
   const [error, setError] = useState<string | null>(null)
   function closeError() {
@@ -160,7 +167,7 @@ export default function Home() {
     </div>
   )
 
-  if (isError || !sortedTasks) return (
+  if (isError || !sortedTasks || !activeTasks) return (
     <div className="mt-8 w-fit mx-auto text-red-600">
       <FontAwesomeIcon icon={solid('warning')} /> Failed to load data.
     </div>
@@ -177,7 +184,7 @@ export default function Home() {
       </main>
 
       <header className="px-3 py-2 flex items-center justify-between">
-        <p className="text-xs font-light">{sortedTasks.length} item{sortedTasks.length === 1 ? '' : 's'} left</p>
+        <p className="text-xs font-light">{activeTasks.length} item{activeTasks.length === 1 ? '' : 's'} left</p>
         <AppNav allFilters={allFilters} appliedFilter={appliedFilter} onFilterChange={(filter) => setFilter(filter)} />
         <button onClick={clearCompleted} disabled={isClearing} className="text-xs hover:underline focus:underline disabled:text-stone-400 !outline-none">Clear completed</button>
       </header>
