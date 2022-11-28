@@ -29,7 +29,7 @@ export default function Home() {
     }
   }, [appliedFilter, allTasks])
 
-  /* Sort filteredTasks by date */
+  /* Sort filteredTasks by date (newest to oldest) */
   const sortedTasks = useMemo<Task[] | null>(() => {
     if (!filteredTasks) return null
 
@@ -37,7 +37,7 @@ export default function Home() {
       const dateA = new Date(taskA.dateCreated)
       const dateB = new Date(taskB.dateCreated)
 
-      return dateA < dateB ? -1 : dateA > dateB ? 1 : 0
+      return dateA < dateB ? 1 : dateA > dateB ? -1 : 0
     })
   }, [filteredTasks])
 
