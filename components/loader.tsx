@@ -5,13 +5,12 @@ type Props = {
 const Loader = ({ isVisible }: Props) => {
     const width = 30
     const height = 30
-    const color = "#f59e0b"
     const strokeWidth = 4
 
     // Credits: https://github.com/mhnpd/react-loader-spinner/blob/master/src/loader/RotatingSquare.tsx
     return <span className={isVisible ? 'opacity-100' : 'opacity-0'}>
         <div
-            className="flex"
+            className="flex text-primary-500"
             aria-label="Loading"
             aria-busy={true}
             role="status"
@@ -30,7 +29,7 @@ const Loader = ({ isVisible }: Props) => {
             >
                 <rect
                     fill="none"
-                    stroke={color}
+                    stroke="currentColor"
                     strokeWidth={strokeWidth}
                     x="25"
                     y="25"
@@ -48,7 +47,7 @@ const Loader = ({ isVisible }: Props) => {
                         begin="rectBox.end"
                     />
                 </rect>
-                <rect x="27" y="27" fill={color} width="46" height="50">
+                <rect x="27" y="27" fill="currentColor" width="46" height="50">
                     <animate
                         attributeName="height"
                         dur="1.3s"
