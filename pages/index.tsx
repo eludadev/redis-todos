@@ -9,7 +9,6 @@ import type { Task } from 'lib/types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { randomNumber, setTaskLoadingState } from 'lib/utils'
-import axios from 'axios'
 
 export default function Home() {
   const { allTasks, setTasks, isLoading, isError } = useTasks()
@@ -42,13 +41,6 @@ export default function Home() {
     })
   }, [filteredTasks])
 
-  /* Filter allTasks by the non-completed state. */
-  const activeTasks = useMemo<Task[] | null>(() => {
-    if (!allTasks) return null
-
-    return allTasks.filter(task => !task.isDone)
-  }, [allTasks])
-
   /* Display at most one dismissable error message. */
   const [error, setError] = useState<string | null>(null)
   function closeError() {
@@ -58,48 +50,17 @@ export default function Home() {
   /* Update the contents of an existing task. */
   async function updateTask(id: string, newTask: Task) {
     setTaskLoadingState(setTasks, id, true)
-    // Send API Request
-    const { status } = await axios({
-      url: `/api/tasks/${id}`,
-      method: 'PUT',
-      data: {
-        task: newTask.task,
-        isDone: newTask.isDone
-      }
-    })
-
-    // Stop loading state.
-    setTaskLoadingState(setTasks, id, false)
-
-    // If success, update todo item
-    if (status === 200) {
-      setTasks(tasks => tasks && tasks.map(task => task.id === id ? newTask : task))
-    } else {
-      // If error, don't update task.
-      setError('Failed to update task.')
-    }
+    /* Fake wait: */ await new Promise(resolve => setTimeout(resolve, 1200))
+    // TODO: sent API request and handle errors.
+    setTasks(tasks => tasks && tasks.map(task => task.id === id ? newTask : task))
   }
 
   /* Delete an existing task. */
   async function deleteTask(id: string) {
     setTaskLoadingState(setTasks, id, true)
-
-    // Send API Request
-    const { status } = await axios({
-      url: `/api/tasks/${id}`,
-      method: 'DELETE'
-    })
-
-    // Stop loading state
-    setTaskLoadingState(setTasks, id, false)
-
-    // If success, delete todo item
-    if (status === 200) {
-      setTasks(tasks => tasks && tasks.filter(task => task.id !== id))
-    } else {
-      // If errror, don't delete todo item
-      setError('Failed to delete task.')
-    }
+    /* Fake wait: */ await new Promise(resolve => setTimeout(resolve, 1200))
+    // TODO: sent API request and handle errors.
+    setTasks(tasks => tasks && tasks.filter(task => task.id !== id))
   }
 
   /* Create a new task. */
@@ -113,52 +74,19 @@ export default function Home() {
       isLoading: true, // The new task starts with a loading state
       dateCreated: (new Date()).toISOString()
     }]))
-
-    // Send API request
-    const { data, status } = await axios({
-      url: '/api/tasks',
-      method: 'POST',
-      data: {
-        task: taskText
-      }
-    })
-
-    // Stop loading state
+    /* Fake wait: */ await new Promise(resolve => setTimeout(resolve, 1200))
+    // TODO: send API request and handle errors.
+    // TODO: replace temporary id with real one from API.
     setTaskLoadingState(setTasks, temporaryId, false)
-
-    // If success, update todo item with real id
-    if (status === 200) {
-      const id = data.id as string
-      const dateCreated = data.dateCreated as string
-      setTasks(tasks => tasks && tasks.filter(task => task.id === temporaryId ? { ...task, id, dateCreated } : task))
-    } else {
-      // If error, delete todo item
-      setTasks(tasks => tasks && tasks.filter(task => task.id !== temporaryId))
-      setError('Failed to create task.')
-    }
   }
 
   /* Clear all completed tasks, and track a separate loading state for this action. */
   const [isClearing, setClearing] = useState<boolean>(false)
   async function clearCompleted() {
     setClearing(true)
-
-    // Send API request
-    const { status } = await axios({
-      url: '/api/tasks/completed',
-      method: 'DELETE'
-    })
-
-    // Stop loading state
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    setTasks(tasks => tasks && tasks.filter(task => !task.isDone))
     setClearing(false)
-
-    // If success, delete completed tasks
-    if (status === 200) {
-      setTasks(tasks => tasks && tasks.filter(task => !task.isDone))
-    } else {
-      // If error, don't delete tasks
-      setError('Faled to clear completed tasks.')
-    }
   }
 
   if (isLoading) return (
@@ -167,7 +95,7 @@ export default function Home() {
     </div>
   )
 
-  if (isError || !sortedTasks || !activeTasks) return (
+  if (isError || !sortedTasks) return (
     <div className="mt-8 w-fit mx-auto text-red-600">
       <FontAwesomeIcon icon={solid('warning')} /> Failed to load data.
     </div>
@@ -184,7 +112,7 @@ export default function Home() {
       </main>
 
       <header className="px-3 py-2 flex items-center justify-between">
-        <p className="text-xs font-light">{activeTasks.length} item{activeTasks.length === 1 ? '' : 's'} left</p>
+        <p className="text-xs font-light">{sortedTasks.length} item{sortedTasks.length === 1 ? '' : 's'} left</p>
         <AppNav allFilters={allFilters} appliedFilter={appliedFilter} onFilterChange={(filter) => setFilter(filter)} />
         <button onClick={clearCompleted} disabled={isClearing} className="text-xs hover:underline focus:underline disabled:text-stone-400 !outline-none">Clear completed</button>
       </header>
